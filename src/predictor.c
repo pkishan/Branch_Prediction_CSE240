@@ -7,12 +7,12 @@
 //========================================================//
 #include <stdio.h>
 #include "predictor.h"
-
+#include <math.h>
+#include <string.h>
 //
 // TODO:Student Information
-//
-const char *studentName = "NAME";
-const char *studentID   = "PID";
+const char *studentName = "Sai Kishan Pampana";
+const char *studentID   = "A53253039";
 const char *email       = "EMAIL";
 
 //------------------------------------//
@@ -33,6 +33,11 @@ int verbose;
 //      Predictor Data Structures     //
 //------------------------------------//
 
+// I prefer using unsigned values as we are dealing with bits rather than numbers
+
+uint8_t *PHT;		// Defining this way would be helping in shifting bits
+uint32_t ghistoryReg;	// The global pattern will be stored here
+
 //
 //TODO: Add your own Branch Predictor data structures here
 //
@@ -42,6 +47,39 @@ int verbose;
 //        Predictor Functions         //
 //------------------------------------//
 
+uint8_t gshare(uint32_t pc)
+{
+	//uint32_t mask = ghistoryReg;
+  	//// printf("The value of PC = %x\n", pc);
+  	//pc = pc&mask;
+  	//uint8_t pc_lsb = pc;
+  	//uint8_t index = pc_lsb ^ ghistoryBits;
+  	// if(PHT[index] == 0 || PHT[index] == 1)
+  	//   return NOTTAKEN;
+  	// else
+  	//   return TAKEN;
+  	return NOTTAKEN;
+}
+
+void update_gshare(uint32_t pc, uint8_t outcome)
+{
+  // uint32_t mask = 0x000000FF;
+  // pc = pc&mask;
+
+  // if(outcome)
+  // {
+  //   if(PHT[pc] != 3)
+  //     PHT[pc]++;
+  // }
+
+  // else
+  // {
+  //   if(PHT[pc] != 0)
+  //     PHT[pc]--;
+  // }
+
+}
+
 // Initialize the predictor
 //
 void
@@ -50,6 +88,30 @@ init_predictor()
   //
   //TODO: Initialize Branch Predictor Data Structures
   //
+	//if(bpType == GSHARE)
+  	//{
+	//	PHT = (int*)malloc((int)pow(2, ghistoryBits)*sizeof(int));
+   	//	for(int i = 0; i < (int)pow(2, ghistoryBits); i++)         // Setting the values to weakly not taken
+    	//	{
+      	//		PHT[i] = 1;
+    	//	}  
+  	//}
+	switch (bpType) 
+	{
+ 		case STATIC:
+ 			break;	
+ 		case GSHARE:
+ 			//PHT = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
+            		//memset(PHT, 1, (1 << ghistoryBits) * sizeof(uint8_t));
+            		break;
+		case TOURNAMENT:
+			break;
+    		case CUSTOM:
+			break;
+    		default:
+    		  	break;
+	}
+  
 }
 
 // Make a prediction for conditional branch instruction at PC 'pc'
@@ -66,8 +128,10 @@ make_prediction(uint32_t pc)
   // Make a prediction based on the bpType
   switch (bpType) {
     case STATIC:
-      return TAKEN;
+      return NOTTAKEN;
     case GSHARE:
+      return gshare(pc);
+      break;
     case TOURNAMENT:
     case CUSTOM:
     default:
@@ -88,4 +152,19 @@ train_predictor(uint32_t pc, uint8_t outcome)
   //
   //TODO: Implement Predictor training
   //
+  switch (bpType)
+  {
+    case STATIC:
+      break;
+    case GSHARE:
+      update_gshare(pc, outcome);
+      break;
+    case TOURNAMENT:
+      break;
+    case CUSTOM:
+      break;
+    default:
+      break;  
+  }
+  
 }

@@ -94,14 +94,6 @@ init_predictor()
   //
   //TODO: Initialize Branch Predictor Data Structures
   //
-	//if(bpType == GSHARE)
-  	//{
-	//	PHT = (int*)malloc((int)pow(2, ghistoryBits)*sizeof(int));
-   	//	for(int i = 0; i < (int)pow(2, ghistoryBits); i++)         // Setting the values to weakly not taken
-    	//	{
-      	//		PHT[i] = 1;
-    	//	}  
-  	//}
 	switch (bpType) 
 	{
  		case STATIC:

@@ -51,6 +51,15 @@ extern int verbose;
 //    Predictor Function Prototypes   //
 //------------------------------------//
 
+uint8_t gshare(uint32_t pc);
+
+//------------------------------------//
+//    Predictor training Prototypes   //
+//------------------------------------//
+
+void update_gshare(uint32_t pc, uint8_t outcome);
+
+
 // Initialize the predictor
 //
 void init_predictor();

@@ -52,13 +52,16 @@ extern int verbose;
 //------------------------------------//
 
 uint8_t gshare(uint32_t pc);
+uint8_t tournament(uint32_t pc);
+uint8_t pred_global(uint32_t pc);
+uint8_t pred_localI(uint32_t pc);
 
 //------------------------------------//
 //    Predictor training Prototypes   //
 //------------------------------------//
 
 void update_gshare(uint32_t pc, uint8_t outcome);
-
+void update_tournament(uint32_t pc, uint8_t outcome);
 
 // Initialize the predictor
 //

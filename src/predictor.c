@@ -51,7 +51,6 @@ unsigned int index;
 
 uint8_t gshare(uint32_t pc)
 {
-	//printf("Entered this function gshare\n");
   	uint32_t temp = pc^ghistoryReg;
 	index = temp&mask;	
 	if(PHT[index] == 0 || PHT[index] == 1)
@@ -62,12 +61,8 @@ uint8_t gshare(uint32_t pc)
 
 void update_gshare(uint32_t pc, uint8_t outcome)
 {
-	//printf("Entered the function update_gshare\n");
-	//printf("The value of pc = %d\n", pc);
 	if(outcome == 0)
 		count++;
-	//printf("The value of count = %d\n", count);
-	//printf("Flag\n");
   	if(outcome)
   	{
   	  if(PHT[index] != ST)
@@ -79,7 +74,6 @@ void update_gshare(uint32_t pc, uint8_t outcome)
   	  if(PHT[index] != SN)
   	    PHT[index]--;
   	}
-	//printf("Flag 2\n");
 	
 	ghistoryReg = ghistoryReg << 1;
 	ghistoryReg += outcome;	

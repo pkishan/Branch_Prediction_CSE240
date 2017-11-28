@@ -29,6 +29,7 @@ int pcIndexBits;  // Number of bits used for PC index
 int bpType;       // Branch Prediction Type
 int verbose;
 
+uint8_t lpred, gpred;	// These values store the prediction made by the global predictor and the local predictor
 //------------------------------------//
 //      Predictor Data Structures     //
 //------------------------------------//
@@ -38,8 +39,13 @@ int verbose;
 uint8_t *PHT;		// Defining this way would be helping in shifting bits
 uint32_t ghistoryReg;	// The global pattern will be stored here
 uint32_t mask;		// We will use this to select thre required number of bits
+uint32_t mask_1;	// We will use this to mask the pc value to index to local history table 
+uint32_t mask_2;	// We will use this to mask the history to the required number of bits
 int count = 0;		// Used for debugging
 unsigned int index;
+
+uint8_t *choice_table, *lpred_table, *gpred_table;
+uint32_t *lhistory_table;
 //
 //TODO: Add your own Branch Predictor data structures here
 //
@@ -80,10 +86,97 @@ void update_gshare(uint32_t pc, uint8_t outcome)
 
 }
 
+
+uint8_t pred_global(uint32_t pc)
+{
+	index = ghistoryReg&mask;
+	if(gpred_table[index] == 0 || gpred_table[index] == 1)
+		return NOTTAKEN;
+	else
+		return TAKEN;	
+
+}
+
+
+uint8_t pred_local(uint32_t pc)
+{
+	index = pc&mask_1;	
+	index = lhistory_table[index]&mask_2;
+	
+	if(lpred_table[index] == 0 || lpred_table[index] == 1)
+		return NOTTAKEN;
+	else
+		return TAKEN;
+}
+
+
+uint8_t tournament(uint32_t pc)
+{
+	index = ghistoryReg&mask;
+	
+	if(choice_table[index] == 0 || choice_table[index] == 1)
+		return gpred;
+	else
+		return lpred;
+
+}
+
+void update_tournament(uint32_t pc, uint8_t outcome)
+{
+
+	// Updating the global date based on the outcome
+	index = ghistoryReg&mask;
+	uint32_t temp_gh = ghistoryReg;	
+	if(outcome)
+	{
+		if(gpred_table[index] != ST)
+			gpred_table[index]++;
+	}
+
+	else
+	{
+		if(gpred_table[index] != SN)
+			gpred_table[index]--;
+	}
+
+	ghistoryReg = ghistoryReg << 1;
+	ghistoryReg += outcome;
+
+	// Updating local data based on the outcome	
+	index = pc&mask_1; 
+	int temp = index;
+	index = lhistory_table[index]&mask_2;
+	lhistory_table[temp] = lhistory_table[temp] << 1;
+	lhistory_table[temp] += outcome;
+	
+	if(outcome)
+	{
+		if(lpred_table[index] != ST)
+			lpred_table[index]++;
+	}
+	else
+	{
+		if(lpred_table[index] != SN)
+			lpred_table[index]--;	
+	}
+
+	// Updating the choice table
+	index = temp_gh&mask;	
+	if(gpred == outcome && lpred != outcome)
+	{
+		if(choice_table[index] != SN)
+			choice_table[index]--;
+	}
+
+	if(gpred != outcome && lpred == outcome)
+	{
+		if(choice_table[index] != ST)
+			choice_table[index]++;
+	}
+}
 // Initialize the predictor
 //
-void
-init_predictor()
+void init_predictor()
 {
   //
   //TODO: Initialize Branch Predictor Data Structures
@@ -100,6 +193,24 @@ init_predictor()
 			ghistoryReg = 0;
             		break;
 		case TOURNAMENT:
+			mask = pow(2, ghistoryBits) - 1;	
+			mask_1 = pow(2, pcIndexBits) - 1;
+			mask_2 = pow(2, lhistoryBits) - 1;
+			printf("The value of masks are 0 = %d, 1 = %d, 2 = %d\n", mask, mask_1, mask_2);
+			ghistoryReg = 0;
+
+			choice_table = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
+            		memset(choice_table, WN,pow(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
+
+			gpred_table = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
+            		memset(gpred_table, WN,pow(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
+
+			lhistory_table = malloc(pow(2, pcIndexBits)*sizeof(uint32_t));
+            		memset(lhistory_table, SN,pow(2,pcIndexBits)*sizeof(uint32_t));	// Initiating as weakly not taken 
+
+			lpred_table = malloc(pow(2, lhistoryBits)*sizeof(uint8_t));
+            		memset(lpred_table, WN,pow(2,lhistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
+
 			break;
     		case CUSTOM:
 			break;
@@ -128,6 +239,9 @@ uint8_t make_prediction(uint32_t pc)
   	  		return gshare(pc);
 	  	  	break;
   	  	case TOURNAMENT:
+			gpred = pred_global(pc);
+			lpred = pred_local(pc);
+			return tournament(pc);
   	  	case CUSTOM:
   	  	default:
 			break;
@@ -154,6 +268,7 @@ void train_predictor(uint32_t pc, uint8_t outcome)
 			update_gshare(pc, outcome);
 			break;
 		case TOURNAMENT:
+			update_tournament(pc, outcome);
 			break;
 		case CUSTOM:
 			break;

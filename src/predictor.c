@@ -139,9 +139,7 @@ void update_tournament(uint32_t pc, uint8_t outcome)
 			gpred_table[index]--;
 	}
 
-	ghistoryReg = ghistoryReg << 1;
-	ghistoryReg += outcome;
-
+	
 	// Updating local data based on the outcome	
 	index = pc&mask_1; 
 	int temp = index;
@@ -161,7 +159,7 @@ void update_tournament(uint32_t pc, uint8_t outcome)
 	}
 
 	// Updating the choice table
-	index = temp_gh&mask;	
+	index = ghistoryReg&mask;	
 	if(gpred == outcome && lpred != outcome)
 	{
 		if(choice_table[index] != SN)
@@ -173,7 +171,20 @@ void update_tournament(uint32_t pc, uint8_t outcome)
 		if(choice_table[index] != ST)
 			choice_table[index]++;
 	}
+
+	// Updating the global history bits. 	
+	ghistoryReg = ghistoryReg << 1;
+	ghistoryReg += outcome;
+
 }
+
+uint8_t perceptron(uint32_t pc)
+{
+
+
+	return NOTTAKEN;
+}
+
 // Initialize the predictor
 //
 void init_predictor()
@@ -213,6 +224,9 @@ void init_predictor()
 
 			break;
     		case CUSTOM:
+			ghistoryBits = 12;
+			lhistoryBits = 14;
+			pcIndexBits = 12;
 			break;
     		default:
     		  	break;
@@ -243,6 +257,7 @@ uint8_t make_prediction(uint32_t pc)
 			lpred = pred_local(pc);
 			return tournament(pc);
   	  	case CUSTOM:
+			gpred = perceptron(pc);
   	  	default:
 			break;
   	}

@@ -191,7 +191,7 @@ uint8_t perceptron(uint32_t pc)
 	score = weights[0];
 	int bit;
 	
-	for(int i = 0; i < N ; i++)
+	for(int i = 0; i < ghistoryBits ; i++)
 	{
 		bit = history%2;
 		history = history >> 1;
@@ -217,7 +217,7 @@ void update_perceptron(uint32_t pc, uint8_t outcome)
 		score = 0 - score;
 	if((ppred != outcome) || (score < theta))
 	{
-		for(int i = 0; i < N; i++)
+		for(int i = 0; i < ghistoryBits; i++)
 		{
 			bit = history%2;
 			if(bit == outcome)
@@ -228,6 +228,9 @@ void update_perceptron(uint32_t pc, uint8_t outcome)
 		}
 
 	}
+	
+	ghistoryReg = ghistoryReg << 1;
+	ghistoryReg += outcome;
 
 }
 

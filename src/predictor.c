@@ -250,7 +250,7 @@ void update_perceptron(uint32_t pc, uint8_t outcome)
 			choice_table[index]--;
 	}
 
-	if(gpred != outcome && ppred != outcome)
+	if(gpred != outcome && ppred == outcome)
 	{
 		if(choice_table[index] != ST)
 			choice_table[index]++;
@@ -303,11 +303,11 @@ void init_predictor()
 
 			break;
     		case CUSTOM:
-			ghistoryBits = 122;
+			ghistoryBits = 22;
 			mask = pow(2, ghistoryBits) - 1;
 			ghistoryReg = 0;
 			int i = 0;
-			N = 1000;
+			N = 100;
 			theta = 1.93*ghistoryBits + 14;
 			perceptron_table = (int **)malloc(N*sizeof(int*));
 			printf("The value of ghistoryBits = %d and the value of theta = %d\n", ghistoryBits, theta);	
@@ -356,7 +356,7 @@ uint8_t make_prediction(uint32_t pc)
   	  	case CUSTOM:
 			ppred = perceptron(pc);
 			gpred = gshare(pc);
-			return tournament_perceptron(ppred, gpred, pc);
+			return tournament_perceptron(pc);
   	  	default:
 			break;
   	}

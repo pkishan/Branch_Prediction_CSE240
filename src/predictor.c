@@ -207,6 +207,16 @@ uint8_t perceptron(uint32_t pc)
 		return TAKEN;
 }
 
+uint8_t tournament_perceptron(uint32_t pc)
+{
+	index = ghistoryReg&mask;
+	if(choice_table[index] == 0 || choice_table[index] == 1)
+		return gpred;
+	else
+		return ppred;
+
+}
+
 void update_perceptron(uint32_t pc, uint8_t outcome)
 {
 	uint32_t history = ghistoryReg;
@@ -231,15 +241,27 @@ void update_perceptron(uint32_t pc, uint8_t outcome)
 		}
 
 	}
+
+	index = ghistoryReg&mask;
+
+	if(gpred == outcome && ppred != outcome)
+	{
+		if(choice_table[index] != SN)
+			choice_table[index]--;
+	}
+
+	if(gpred != outcome && ppred != outcome)
+	{
+		if(choice_table[index] != ST)
+			choice_table[index]++;
+	}
 	
 	ghistoryReg = ghistoryReg << 1;
 	ghistoryReg += outcome;
 
 }
 
-uint8_t tournament_perceptron(uint32_t pc)
-{
-}
+
 
 
 // Initialize the predictor
@@ -282,12 +304,16 @@ void init_predictor()
 			break;
     		case CUSTOM:
 			ghistoryBits = 122;
+			mask = pow(2, ghistoryBits) - 1;
 			ghistoryReg = 0;
 			int i = 0;
 			N = 1000;
 			theta = 1.93*ghistoryBits + 14;
 			perceptron_table = (int **)malloc(N*sizeof(int*));
 			printf("The value of ghistoryBits = %d and the value of theta = %d\n", ghistoryBits, theta);	
+			
+			choice_table = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
+            		memset(choice_table, WN,pow(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken
 
 			for(i = 0; i < N; i++)
 			{

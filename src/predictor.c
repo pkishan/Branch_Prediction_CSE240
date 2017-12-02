@@ -185,8 +185,8 @@ void update_tournament(uint32_t pc, uint8_t outcome)
 
 uint8_t perceptron(uint32_t pc)
 {
-	index = pc%N;
-	int *weights = perceptron_table[index];
+	index = pc%N;		//Index into the table of perceptrons
+	int *weights = perceptron_table[index];		// Pointer to the desired entry
 	uint32_t history = ghistoryReg;
 	score = weights[0];
 	int bit;
@@ -213,13 +213,16 @@ void update_perceptron(uint32_t pc, uint8_t outcome)
 	index = pc%N;
 	int *weights = perceptron_table[index];
 	int bit;
+
 	if(score < 0)
 		score = 0 - score;
+
 	if((ppred != outcome) || (score < theta))
 	{
 		for(int i = 0; i < ghistoryBits; i++)
 		{
 			bit = history%2;
+			history = history >> 1;
 			if(bit == outcome)
 				weights[i + 1]++;
 			else
@@ -233,6 +236,11 @@ void update_perceptron(uint32_t pc, uint8_t outcome)
 	ghistoryReg += outcome;
 
 }
+
+uint8_t tournament_perceptron(uint32_t pc)
+{
+}
+
 
 // Initialize the predictor
 //
@@ -273,11 +281,13 @@ void init_predictor()
 
 			break;
     		case CUSTOM:
-			ghistoryBits = 22;
+			ghistoryBits = 122;
+			ghistoryReg = 0;
 			int i = 0;
-			N = 100;
+			N = 1000;
 			theta = 1.93*ghistoryBits + 14;
 			perceptron_table = (int **)malloc(N*sizeof(int*));
+			printf("The value of ghistoryBits = %d and the value of theta = %d\n", ghistoryBits, theta);	
 
 			for(i = 0; i < N; i++)
 			{
@@ -285,6 +295,9 @@ void init_predictor()
 				memset(perceptron_table[i], 0, ghistoryBits*sizeof(int));
 				perceptron_table[i][0] = 1;
 			}
+			
+			PHT = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
+            		memset(PHT, WN,pow(2,ghistoryBits)*sizeof(uint8_t));
 			break;
     		default:
     		  	break;
@@ -316,7 +329,8 @@ uint8_t make_prediction(uint32_t pc)
 			return tournament(pc);
   	  	case CUSTOM:
 			ppred = perceptron(pc);
-			return ppred;
+			gpred = gshare(pc);
+			return tournament_perceptron(ppred, gpred, pc);
   	  	default:
 			break;
   	}

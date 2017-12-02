@@ -272,7 +272,7 @@ void init_predictor()
     		case CUSTOM:
 			ghistoryBits = 22;
 			int i = 0;
-			N = 10;
+			N = 100;
 			theta = 1.93*ghistoryBits + 14;
 			perceptron_table = (int **)malloc(N*sizeof(int*));
 

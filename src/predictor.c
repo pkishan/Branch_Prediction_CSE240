@@ -312,7 +312,8 @@ uint8_t make_prediction(uint32_t pc)
 			lpred = pred_local(pc);
 			return tournament(pc);
   	  	case CUSTOM:
-			return perceptron(pc);
+			ppred = perceptron(pc);
+			return ppred;
   	  	default:
 			break;
   	}

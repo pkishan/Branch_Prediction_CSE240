@@ -189,7 +189,7 @@ uint8_t perceptron(uint32_t pc)
 	int score = weights[0];
 	int bit;
 	
-	for(int i = 0; i < ; i++)
+	for(int i = 0; i < N ; i++)
 	{
 		bit = history%2;
 		history = history >> 1;

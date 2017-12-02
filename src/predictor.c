@@ -29,8 +29,10 @@ int pcIndexBits;  // Number of bits used for PC index
 int bpType;       // Branch Prediction Type
 int verbose;
 int theta;	  // Threshold that is used in perceptron
+int score;	  // This score is used to store the value from perceptron	
 
 uint8_t lpred, gpred;	// These values store the prediction made by the global predictor and the local predictor
+uint8_t pperd;		// The prediction that is returned in the perceptron
 //------------------------------------//
 //      Predictor Data Structures     //
 //------------------------------------//
@@ -186,7 +188,7 @@ uint8_t perceptron(uint32_t pc)
 	index = pc%N;
 	int *weights = perceptron_table[index];
 	uint32_t history = ghistoryReg;
-	int score = weights[0];
+	score = weights[0];
 	int bit;
 	
 	for(int i = 0; i < N ; i++)
@@ -197,12 +199,39 @@ uint8_t perceptron(uint32_t pc)
 			score = score - weights[i+1];
 		else if(bit ==1)
 			score = score + weights[i+1];
-
-
 	}
+
+	if(score < 0)
+		return NOTTAKEN;
+	else
+		return TAKEN;
 
 
 	return NOTTAKEN;
+}
+
+void update_perceptron(uint32_t pc, uint8_t outcome)
+{
+	uint32_t history = ghistoryReg;
+	index = pc%N;
+	int *weights = perceptron_table[index];
+	int bit;
+	if(score < 0)
+		score = 0 - score;
+	if((ppred != oucome) || (score < theta))
+	{
+		for(int i = 0; i < N; i++)
+		{
+			bit = history%2;
+			if(bit == outcome)
+				weights[i + 1]++;
+			else
+				weights[i+1]--;
+
+		}
+
+	}
+
 }
 
 // Initialize the predictor
@@ -247,7 +276,9 @@ void init_predictor()
 			ghistoryBits = 22;
 			int i = 0;
 			N = 10;
+			theta = 1.93*ghistoryBits + 14;
 			perceptron_table = (int **)malloc(N*sizeof(int*));
+
 			for(i = 0; i < N; i++)
 			{
 				perceptron_table[i] = (int *)malloc((ghistoryBits+1)*sizeof(int));
@@ -283,7 +314,7 @@ uint8_t make_prediction(uint32_t pc)
 			lpred = pred_local(pc);
 			return tournament(pc);
   	  	case CUSTOM:
-			gpred = perceptron(pc);
+			return perceptron(pc);
   	  	default:
 			break;
   	}
@@ -312,6 +343,7 @@ void train_predictor(uint32_t pc, uint8_t outcome)
 			update_tournament(pc, outcome);
 			break;
 		case CUSTOM:
+			update_perceptron(pc, outcome);
 			break;
 		default:
 			break;  

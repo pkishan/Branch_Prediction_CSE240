@@ -205,9 +205,6 @@ uint8_t perceptron(uint32_t pc)
 		return NOTTAKEN;
 	else
 		return TAKEN;
-
-
-	return NOTTAKEN;
 }
 
 void update_perceptron(uint32_t pc, uint8_t outcome)
@@ -283,6 +280,7 @@ void init_predictor()
 			{
 				perceptron_table[i] = (int *)malloc((ghistoryBits+1)*sizeof(int));
 				memset(perceptron_table[i], 0, ghistoryBits*sizeof(int));
+				perceptron_table[i][0] = 1;
 			}
 			break;
     		default:

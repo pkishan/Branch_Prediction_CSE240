@@ -183,6 +183,23 @@ void update_tournament(uint32_t pc, uint8_t outcome)
 
 uint8_t perceptron(uint32_t pc)
 {
+	index = pc%N;
+	int *weights = perceptron_table[index];
+	uint32_t history = ghistoryReg;
+	int score = weights[0];
+	int bit;
+	
+	for(int i = 0; i < ; i++)
+	{
+		bit = history%2;
+		history = history >> 1;
+		if(bit == 0)
+			score = score - weights[i+1];
+		else if(bit ==1)
+			score = score + weights[i+1];
+
+
+	}
 
 
 	return NOTTAKEN;
@@ -233,7 +250,7 @@ void init_predictor()
 			perceptron_table = (int **)malloc(N*sizeof(int*));
 			for(i = 0; i < N; i++)
 			{
-				perceptron_table[i] = (int *)malloc(ghistoryBits*sizeof(int));
+				perceptron_table[i] = (int *)malloc((ghistoryBits+1)*sizeof(int));
 				memset(perceptron_table[i], 0, ghistoryBits*sizeof(int));
 			}
 			break;

@@ -32,7 +32,7 @@ int theta;	  // Threshold that is used in perceptron
 int score;	  // This score is used to store the value from perceptron	
 
 uint8_t lpred, gpred;	// These values store the prediction made by the global predictor and the local predictor
-uint8_t pperd;		// The prediction that is returned in the perceptron
+uint8_t ppred;		// The prediction that is returned in the perceptron
 //------------------------------------//
 //      Predictor Data Structures     //
 //------------------------------------//
@@ -218,7 +218,7 @@ void update_perceptron(uint32_t pc, uint8_t outcome)
 	int bit;
 	if(score < 0)
 		score = 0 - score;
-	if((ppred != oucome) || (score < theta))
+	if((ppred != outcome) || (score < theta))
 	{
 		for(int i = 0; i < N; i++)
 		{

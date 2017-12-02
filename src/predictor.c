@@ -28,6 +28,7 @@ int lhistoryBits; // Number of bits used for Local History
 int pcIndexBits;  // Number of bits used for PC index
 int bpType;       // Branch Prediction Type
 int verbose;
+int theta;	  // Threshold that is used in perceptron
 
 uint8_t lpred, gpred;	// These values store the prediction made by the global predictor and the local predictor
 //------------------------------------//
@@ -42,10 +43,12 @@ uint32_t mask;		// We will use this to select thre required number of bits
 uint32_t mask_1;	// We will use this to mask the pc value to index to local history table 
 uint32_t mask_2;	// We will use this to mask the history to the required number of bits
 int count = 0;		// Used for debugging
-unsigned int index;
+unsigned int index;	// Used to index into various entries of different tables. 
 
 uint8_t *choice_table, *lpred_table, *gpred_table;
 uint32_t *lhistory_table;
+int N;			// Number of entries in the percepton table
+int **perceptron_table;	// Pointer to the percepton table
 //
 //TODO: Add your own Branch Predictor data structures here
 //
@@ -224,9 +227,15 @@ void init_predictor()
 
 			break;
     		case CUSTOM:
-			ghistoryBits = 12;
-			lhistoryBits = 14;
-			pcIndexBits = 12;
+			ghistoryBits = 22;
+			int i = 0;
+			N = 10;
+			perceptron_table = (int **)malloc(N*sizeof(int*));
+			for(i = 0; i < N; i++)
+			{
+				perceptron_table[i] = (int *)malloc(ghistoryBits*sizeof(int));
+				memset(perceptron_table[i], 0, ghistoryBits*sizeof(int));
+			}
 			break;
     		default:
     		  	break;

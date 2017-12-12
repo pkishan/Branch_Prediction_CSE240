@@ -183,13 +183,15 @@ void update_tournament(uint32_t pc, uint8_t outcome)
 
 }
 
+// Initialisation of parameters for the custom predictor of perceptron
+
 void init_perceptron()
 {
-	ghistoryBits = 22;
+	ghistoryBits = 9;
 	mask = pow(2, ghistoryBits) - 1;
 	ghistoryReg = 0;
 	int i = 0;
-	N = 100;
+	N = 28;
 	theta = 1.93*ghistoryBits + 14;
 	perceptron_table = (int **)malloc(N*sizeof(int*));
 	printf("The value of ghistoryBits = %d and the value of theta = %d\n", ghistoryBits, theta);	

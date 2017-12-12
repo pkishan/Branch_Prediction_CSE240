@@ -21,7 +21,7 @@ const char *email       = "EMAIL";
 
 // Handy Global for use in output routines
 const char *bpName[4] = { "Static", "Gshare",
-                          "Tournament", "Custom" };
+	"Tournament", "Custom" };
 
 int ghistoryBits; // Number of bits used for Global History
 int lhistoryBits; // Number of bits used for Local History
@@ -45,10 +45,10 @@ uint32_t mask;		// We will use this to select thre required number of bits
 uint32_t mask_1;	// We will use this to mask the pc value to index to local history table 
 uint32_t mask_2;	// We will use this to mask the history to the required number of bits
 int count = 0;		// Used for debugging
-unsigned int index;	// Used to index into various entries of different tables. 
+unsigned int index;	// Used to index into various entries of different tables 
 
-uint8_t *choice_table, *lpred_table, *gpred_table;
-uint32_t *lhistory_table;
+uint8_t *choice_table, *lpred_table, *gpred_table;		// Definition of all the prediction table pointers 
+uint32_t *lhistory_table;					// History table for local branches
 int N;			// Number of entries in the percepton table
 int **perceptron_table;	// Pointer to the percepton table
 //
@@ -62,7 +62,7 @@ int **perceptron_table;	// Pointer to the percepton table
 
 uint8_t gshare(uint32_t pc)
 {
-  	uint32_t temp = pc^ghistoryReg;
+	uint32_t temp = pc^ghistoryReg;
 	index = temp&mask;	
 	if(PHT[index] == 0 || PHT[index] == 1)
 		return NOTTAKEN;
@@ -74,18 +74,18 @@ void update_gshare(uint32_t pc, uint8_t outcome)
 {
 	if(outcome == 0)
 		count++;
-  	if(outcome)
-  	{
-  	  if(PHT[index] != ST)
-  	    PHT[index]++;
-  	}
+	if(outcome)
+	{
+		if(PHT[index] != ST)
+			PHT[index]++;
+	}
 
-  	else
-  	{
-  	  if(PHT[index] != SN)
-  	    PHT[index]--;
-  	}
-	
+	else
+	{
+		if(PHT[index] != SN)
+			PHT[index]--;
+	}
+
 	ghistoryReg = ghistoryReg << 1;
 	ghistoryReg += outcome;	
 
@@ -107,7 +107,7 @@ uint8_t pred_local(uint32_t pc)
 {
 	index = pc&mask_1;	
 	index = lhistory_table[index]&mask_2;
-	
+
 	if(lpred_table[index] == 0 || lpred_table[index] == 1)
 		return NOTTAKEN;
 	else
@@ -118,7 +118,7 @@ uint8_t pred_local(uint32_t pc)
 uint8_t tournament(uint32_t pc)
 {
 	index = ghistoryReg&mask;
-	
+
 	if(choice_table[index] == 0 || choice_table[index] == 1)
 		return gpred;
 	else
@@ -144,14 +144,14 @@ void update_tournament(uint32_t pc, uint8_t outcome)
 			gpred_table[index]--;
 	}
 
-	
+
 	// Updating local data based on the outcome	
 	index = pc&mask_1; 
 	int temp = index;
 	index = lhistory_table[index]&mask_2;
 	lhistory_table[temp] = lhistory_table[temp] << 1;
 	lhistory_table[temp] += outcome;
-	
+
 	if(outcome)
 	{
 		if(lpred_table[index] != ST)
@@ -183,14 +183,40 @@ void update_tournament(uint32_t pc, uint8_t outcome)
 
 }
 
+void init_perceptron()
+{
+	ghistoryBits = 22;
+	mask = pow(2, ghistoryBits) - 1;
+	ghistoryReg = 0;
+	int i = 0;
+	N = 100;
+	theta = 1.93*ghistoryBits + 14;
+	perceptron_table = (int **)malloc(N*sizeof(int*));
+	printf("The value of ghistoryBits = %d and the value of theta = %d\n", ghistoryBits, theta);	
+
+	choice_table = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
+	memset(choice_table, WN,pow(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken
+
+	for(i = 0; i < N; i++)
+	{
+		perceptron_table[i] = (int *)malloc((ghistoryBits+1)*sizeof(int));
+		memset(perceptron_table[i], 0, ghistoryBits*sizeof(int));
+		perceptron_table[i][0] = 1;
+	}
+
+	PHT = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
+	memset(PHT, WN,pow(2,ghistoryBits)*sizeof(uint8_t));
+
+}
+
 uint8_t perceptron(uint32_t pc)
 {
-	index = pc%N;		//Index into the table of perceptrons
+	index = pc%N;					//Index into the table of perceptrons
 	int *weights = perceptron_table[index];		// Pointer to the desired entry
 	uint32_t history = ghistoryReg;
 	score = weights[0];
 	int bit;
-	
+
 	for(int i = 0; i < ghistoryBits ; i++)
 	{
 		bit = history%2;
@@ -255,7 +281,7 @@ void update_perceptron(uint32_t pc, uint8_t outcome)
 		if(choice_table[index] != ST)
 			choice_table[index]++;
 	}
-	
+
 	ghistoryReg = ghistoryReg << 1;
 	ghistoryReg += outcome;
 
@@ -268,20 +294,20 @@ void update_perceptron(uint32_t pc, uint8_t outcome)
 //
 void init_predictor()
 {
-  //
-  //TODO: Initialize Branch Predictor Data Structures
-  //
+	//
+	//TODO: Initialize Branch Predictor Data Structures
+	//
 	switch (bpType) 
 	{
- 		case STATIC:
- 			break;	
- 		case GSHARE:
+		case STATIC:
+			break;	
+		case GSHARE:
 			mask = pow(2, ghistoryBits) - 1;
 			printf("The value of mask = %d \n", mask);
- 			PHT = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
-            		memset(PHT, WN,pow(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
+			PHT = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
+			memset(PHT, WN,pow(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
 			ghistoryReg = 0;
-            		break;
+			break;
 		case TOURNAMENT:
 			mask = pow(2, ghistoryBits) - 1;	
 			mask_1 = pow(2, pcIndexBits) - 1;
@@ -290,45 +316,25 @@ void init_predictor()
 			ghistoryReg = 0;
 
 			choice_table = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
-            		memset(choice_table, WN,pow(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
+			memset(choice_table, WN,pow(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
 
 			gpred_table = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
-            		memset(gpred_table, WN,pow(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
+			memset(gpred_table, WN,pow(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
 
 			lhistory_table = malloc(pow(2, pcIndexBits)*sizeof(uint32_t));
-            		memset(lhistory_table, SN,pow(2,pcIndexBits)*sizeof(uint32_t));	// Initiating as weakly not taken 
+			memset(lhistory_table, SN,pow(2,pcIndexBits)*sizeof(uint32_t));	// Initiating as weakly not taken 
 
 			lpred_table = malloc(pow(2, lhistoryBits)*sizeof(uint8_t));
-            		memset(lpred_table, WN,pow(2,lhistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
+			memset(lpred_table, WN,pow(2,lhistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
 
 			break;
-    		case CUSTOM:
-			ghistoryBits = 22;
-			mask = pow(2, ghistoryBits) - 1;
-			ghistoryReg = 0;
-			int i = 0;
-			N = 100;
-			theta = 1.93*ghistoryBits + 14;
-			perceptron_table = (int **)malloc(N*sizeof(int*));
-			printf("The value of ghistoryBits = %d and the value of theta = %d\n", ghistoryBits, theta);	
-			
-			choice_table = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
-            		memset(choice_table, WN,pow(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken
-
-			for(i = 0; i < N; i++)
-			{
-				perceptron_table[i] = (int *)malloc((ghistoryBits+1)*sizeof(int));
-				memset(perceptron_table[i], 0, ghistoryBits*sizeof(int));
-				perceptron_table[i][0] = 1;
-			}
-			
-			PHT = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
-            		memset(PHT, WN,pow(2,ghistoryBits)*sizeof(uint8_t));
+		case CUSTOM:
+			init_perceptron();
 			break;
-    		default:
-    		  	break;
+		default:
+			break;
 	}
-  
+
 }
 
 // Make a prediction for conditional branch instruction at PC 'pc'
@@ -337,31 +343,31 @@ void init_predictor()
 //
 uint8_t make_prediction(uint32_t pc)
 {
-  //
-  //TODO: Implement prediction scheme
-  //
+	//
+	//TODO: Implement prediction scheme
+	//
 
-  // Make a prediction based on the bpType
+	// Make a prediction based on the bpType
 	switch (bpType)
 	{
 		case STATIC:
 			return NOTTAKEN;
-  	  	case GSHARE:
-  	  		return gshare(pc);
-	  	  	break;
-  	  	case TOURNAMENT:
+		case GSHARE:
+			return gshare(pc);
+			break;
+		case TOURNAMENT:
 			gpred = pred_global(pc);
 			lpred = pred_local(pc);
 			return tournament(pc);
-  	  	case CUSTOM:
+		case CUSTOM:
 			ppred = perceptron(pc);
 			gpred = gshare(pc);
 			return tournament_perceptron(pc);
-  	  	default:
+		default:
 			break;
-  	}
+	}
 
-  // If there is not a compatable bpType then return NOTTAKEN
+	// If there is not a compatable bpType then return NOTTAKEN
 	return NOTTAKEN;
 }
 
@@ -371,11 +377,11 @@ uint8_t make_prediction(uint32_t pc)
 //
 void train_predictor(uint32_t pc, uint8_t outcome)
 {
-  //
-  //TODO: Implement Predictor training
-  //
+	//
+	//TODO: Implement Predictor training
+	//
 	switch (bpType)
-  	{
+	{
 		case STATIC:
 			break;
 		case GSHARE:
@@ -389,6 +395,6 @@ void train_predictor(uint32_t pc, uint8_t outcome)
 			break;
 		default:
 			break;  
-  	}
-  
+	}
+
 }

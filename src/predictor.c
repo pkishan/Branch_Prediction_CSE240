@@ -290,7 +290,10 @@ void update_perceptron(uint32_t pc, uint8_t outcome)
 }
 
 
+void init_bi-mode()
+{
 
+}
 
 // Initialize the predictor
 //
@@ -332,6 +335,7 @@ void init_predictor()
 			break;
 		case CUSTOM:
 			init_perceptron();
+			//init_bi-mode();
 			break;
 		default:
 			break;

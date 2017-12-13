@@ -294,7 +294,7 @@ void update_perceptron(uint32_t pc, uint8_t outcome)
 }
 
 
-void init_bi-mode()
+void init_bi_mode()
 {
 	ghistoryBits = 10;
 	mask = pow(2, ghistoryBits) - 1; 
@@ -351,8 +351,8 @@ void init_predictor()
 
 			break;
 		case CUSTOM:
-			init_perceptron();
-			//init_bi-mode();
+			//init_perceptron();
+			init_bi_mode();
 			break;
 		default:
 			break;

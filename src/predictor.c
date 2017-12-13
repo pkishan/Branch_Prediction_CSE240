@@ -51,6 +51,10 @@ uint8_t *choice_table, *lpred_table, *gpred_table;		// Definition of all the pre
 uint32_t *lhistory_table;					// History table for local branches
 int N;			// Number of entries in the percepton table
 int **perceptron_table;	// Pointer to the percepton table
+
+uint8_t *direction_taken_PHT, *direction_not_taken_PHT;
+uint8_t *choice_PHT;
+
 //
 //TODO: Add your own Branch Predictor data structures here
 //
@@ -292,6 +296,19 @@ void update_perceptron(uint32_t pc, uint8_t outcome)
 
 void init_bi-mode()
 {
+	ghistoryBits = 10;
+	mask = pow(2, ghistoryBits) - 1; 
+
+	choice_PHT = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
+	memset(choice_PHT, WN,pow(2,ghistoryBits)*sizeof(uint8_t));			// Initiating as weakly not taken
+
+	direction_taken_PHT = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
+	memset(direction_taken_PHT, WN,pow(2,ghistoryBits)*sizeof(uint8_t));
+
+	direction_not_taken_PHT = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
+	memset(direction_not_taken_PHT, WN,pow(2,ghistoryBits)*sizeof(uint8_t));
+
+	ghistoryReg = 0;
 
 }
 

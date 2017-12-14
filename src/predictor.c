@@ -327,8 +327,8 @@ uint8_t bi_mode(uint32_t pc)
 
 	else
 	{
-		if(direction_taken_PHT[direction_index] == SN || drection_taken_PHT[direction_index] == WN)
-			return NOTTAKNE;
+		if(direction_taken_PHT[direction_index] == SN || direction_taken_PHT[direction_index] == WN)
+			return NOTTAKEN;
 		else
 			return TAKEN;
 	}

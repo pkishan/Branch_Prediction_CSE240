@@ -312,6 +312,30 @@ void init_bi_mode()
 
 }
 
+uint8_t bi_mode(uint32_t pc)
+{
+	uint32_t choice_index = pc&mask;
+	uint32_t direction_index = (pc^ghistoryReg)&mask;
+
+	if(choice_PHT[choice_index] == SN || choice_PHT[choice_index] == WN)
+	{
+		if(direction_not_taken_PHT[direction_index] == SN || direction_not_taken_PHT[direction_index] == WN)
+			return NOTTAKEN;
+		else
+			return TAKEN;
+	}
+
+	else
+	{
+		if(direction_taken_PHT[direction_index] == SN || drection_taken_PHT[direction_index] == WN)
+			return NOTTAKNE;
+		else
+			return TAKEN;
+	}
+
+
+}
+
 // Initialize the predictor
 //
 void init_predictor()
@@ -383,9 +407,13 @@ uint8_t make_prediction(uint32_t pc)
 			lpred = pred_local(pc);
 			return tournament(pc);
 		case CUSTOM:
+			// Code to make the prediction from perceptron and gshare hybrid
 			ppred = perceptron(pc);
 			gpred = gshare(pc);
 			return tournament_perceptron(pc);
+
+			// Code to make the prediction from the bi-mode predictor
+			return bi_mode(pc);
 		default:
 			break;
 	}

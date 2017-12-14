@@ -336,6 +336,73 @@ uint8_t bi_mode(uint32_t pc)
 
 }
 
+
+// Updating the bi-mode predictor
+
+void update_bi_mode(uint32_t pc, uint8_t outcome)
+{
+	uint32_t choice_index = pc&mask;
+	uint32_t direction_index = (pc^ghistoryReg)&mask;
+	int direction = choice_PHT[choice_index];
+
+	if(outcome == TAKEN)
+	{
+		if(choice_PHT[choice_index] == SN || choice_PHT[choice_index] == WN)
+		{
+			if(direction_not_taken_PHT[direction_index] == SN || direction_not_taken_PHT[direction_index] == WN)
+				choice_PHT[choice_index]++;
+		}
+
+		else
+			if(choice_PHT[choice_index] != ST)
+				choice_PHT[choice_index]++;
+	}
+
+	if(outcome == NOTTAKEN)
+	{
+		if(choice_PHT[choice_index] == ST || choice_PHT[choice_index] == WT)
+		{
+			if(direction_taken_PHT[direction_index] == ST || direction_not_taken_PHT[direction_index] == WT)
+				choice_PHT[choice_index]--;
+		}
+
+		else
+			if(choice_PHT[choice_index] != SN)
+				choice_PHT[choice_index]--;
+	}
+
+	if(direction == SN || direction == WN)
+	{
+		if(outcome == TAKEN)
+		{
+			if(direction_not_taken_PHT[direction_index] != ST)
+				direction_not_taken_PHT[direction_index]++;
+		}
+		else
+		{
+			if(direction_not_taken_PHT[direction_index] != SN)
+				direction_not_taken_PHT[direction_index]--;
+		}
+
+	}
+
+	else
+	{
+		if(outcome == TAKEN)
+		{
+			if(direction_taken_PHT[direction_index] != ST)
+				direction_taken_PHT[direction_index]++;
+		}
+		else
+		{
+			if(direction_taken_PHT[direction_index] != SN)
+				direction_taken_PHT[direction_index]--;
+		}
+	}
+	
+
+}
+
 // Initialize the predictor
 //
 void init_predictor()
@@ -408,9 +475,9 @@ uint8_t make_prediction(uint32_t pc)
 			return tournament(pc);
 		case CUSTOM:
 			// Code to make the prediction from perceptron and gshare hybrid
-			ppred = perceptron(pc);
-			gpred = gshare(pc);
-			return tournament_perceptron(pc);
+			//ppred = perceptron(pc);
+			//gpred = gshare(pc);
+			//return tournament_perceptron(pc);
 
 			// Code to make the prediction from the bi-mode predictor
 			return bi_mode(pc);
@@ -442,7 +509,10 @@ void train_predictor(uint32_t pc, uint8_t outcome)
 			update_tournament(pc, outcome);
 			break;
 		case CUSTOM:
-			update_perceptron(pc, outcome);
+			// Functions defined to update perceptron based on the outcome 
+			//update_perceptron(pc, outcome);
+			//break;
+			update_bi_mode(pc,outcome);
 			break;
 		default:
 			break;  

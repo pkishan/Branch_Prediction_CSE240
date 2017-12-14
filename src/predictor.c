@@ -399,6 +399,9 @@ void update_bi_mode(uint32_t pc, uint8_t outcome)
 				direction_taken_PHT[direction_index]--;
 		}
 	}
+
+	ghistoryReg = ghistoryReg << 1;
+	ghistoryReg += outcome;
 	
 
 }

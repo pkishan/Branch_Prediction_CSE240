@@ -210,7 +210,7 @@ void init_perceptron()
 	N = 28;
 	theta = 1.93*ghistoryBits + 14;
 	perceptron_table = (int **)malloc(N*sizeof(int*));
-	printf("The value of ghistoryBits = %d and the value of theta = %d\n", ghistoryBits, theta);	
+	//printf("The value of ghistoryBits = %d and the value of theta = %d\n", ghistoryBits, theta);	
 
 	choice_table = malloc(power(2, ghistoryBits)*sizeof(uint8_t));
 	memset(choice_table, WN,power(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken
@@ -435,7 +435,7 @@ void init_predictor()
 			break;	
 		case GSHARE:
 			mask = power(2, ghistoryBits) - 1;
-			printf("The value of mask = %d \n", mask);
+			//printf("The value of mask = %d \n", mask);
 			PHT = malloc(power(2, ghistoryBits)*sizeof(uint8_t));
 			memset(PHT, WN,power(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
 			ghistoryReg = 0;
@@ -444,7 +444,7 @@ void init_predictor()
 			mask = power(2, ghistoryBits) - 1;	
 			mask_1 = power(2, pcIndexBits) - 1;
 			mask_2 = power(2, lhistoryBits) - 1;
-			printf("The value of masks are 0 = %d, 1 = %d, 2 = %d\n", mask, mask_1, mask_2);
+			//printf("The value of masks are 0 = %d, 1 = %d, 2 = %d\n", mask, mask_1, mask_2);
 			ghistoryReg = 0;
 
 			choice_table = malloc(power(2, ghistoryBits)*sizeof(uint8_t));

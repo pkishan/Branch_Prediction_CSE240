@@ -356,8 +356,10 @@ void update_bi_mode(uint32_t pc, uint8_t outcome)
 		}
 
 		else
+		{
 			if(choice_PHT[choice_index] != ST)
 				choice_PHT[choice_index]++;
+		}
 	}
 
 	if(outcome == NOTTAKEN)

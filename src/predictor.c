@@ -296,11 +296,13 @@ void update_perceptron(uint32_t pc, uint8_t outcome)
 
 void init_bi_mode()
 {
-	ghistoryBits = 10;
+	ghistoryBits = 11;
+	pcIndexBits = 12;
 	mask = pow(2, ghistoryBits) - 1; 
+	mask_1 = pow(2, pcIndexBits) - 1;
 
-	choice_PHT = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
-	memset(choice_PHT, WN,pow(2,ghistoryBits)*sizeof(uint8_t));			// Initiating as weakly not taken
+	choice_PHT = malloc(pow(2, pcIndexBits)*sizeof(uint8_t));
+	memset(choice_PHT, WN,pow(2,pcIndexBits)*sizeof(uint8_t));			// Initiating as weakly not taken
 
 	direction_taken_PHT = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
 	memset(direction_taken_PHT, WN,pow(2,ghistoryBits)*sizeof(uint8_t));
@@ -314,7 +316,7 @@ void init_bi_mode()
 
 uint8_t bi_mode(uint32_t pc)
 {
-	uint32_t choice_index = pc&mask;
+	uint32_t choice_index = pc&mask_1;
 	uint32_t direction_index = (pc^ghistoryReg)&mask;
 
 	if(choice_PHT[choice_index] == SN || choice_PHT[choice_index] == WN)
@@ -341,7 +343,7 @@ uint8_t bi_mode(uint32_t pc)
 
 void update_bi_mode(uint32_t pc, uint8_t outcome)
 {
-	uint32_t choice_index = pc&mask;
+	uint32_t choice_index = pc&mask_1;
 	uint32_t direction_index = (pc^ghistoryReg)&mask;
 	int direction = choice_PHT[choice_index];
 

@@ -378,7 +378,7 @@ void update_bi_mode(uint32_t pc, uint8_t outcome)
 	{
 		if(choice_PHT[choice_index] == ST || choice_PHT[choice_index] == WT)
 		{
-			if(direction_taken_PHT[direction_index] == ST || direction_not_taken_PHT[direction_index] == WT)
+			if(direction_taken_PHT[direction_index] == ST || direction_taken_PHT[direction_index] == WT)
 				choice_PHT[choice_index]--;
 		}
 

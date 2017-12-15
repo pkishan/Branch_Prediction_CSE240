@@ -320,7 +320,7 @@ void init_bi_mode()
 	memset(direction_taken_PHT, ST,power(2,ghistoryBits)*sizeof(uint8_t));
 
 	direction_not_taken_PHT = malloc(power(2, ghistoryBits)*sizeof(uint8_t));
-	memset(direction_not_taken_PHT, SN,power(2,ghistoryBits)*sizeof(uint8_t));
+	memset(direction_not_taken_PHT, WN,power(2,ghistoryBits)*sizeof(uint8_t));
 
 	ghistoryReg = 0;
 
@@ -341,11 +341,10 @@ uint8_t bi_mode(uint32_t pc)
 
 	else
 	{
-		//if(direction_taken_PHT[direction_index] == SN || direction_taken_PHT[direction_index] == WN)
-		//	return NOTTAKEN;
-		//else
-		//	return TAKEN;
-		return direction_taken_PHT[direction_index] >> 1;
+		if(direction_taken_PHT[direction_index] == SN || direction_taken_PHT[direction_index] == WN)
+			return NOTTAKEN;
+		else
+			return TAKEN;
 	}
 
 

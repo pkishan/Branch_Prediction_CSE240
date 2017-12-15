@@ -7,7 +7,6 @@
 //========================================================//
 #include <stdio.h>
 #include "predictor.h"
-#include <math.h>
 #include <string.h>
 //
 // TODO:Student Information
@@ -55,6 +54,19 @@ int **perceptron_table;	// Pointer to the percepton table
 uint8_t *direction_taken_PHT, *direction_not_taken_PHT;
 uint8_t *choice_PHT;
 
+
+
+
+
+int power(int a, uint32_t b)
+{
+	int result = 1;
+	for(int i = 0; i < b; i++)
+	{
+		result = result*2;
+	}
+	return result;
+}
 //
 //TODO: Add your own Branch Predictor data structures here
 //
@@ -192,7 +204,7 @@ void update_tournament(uint32_t pc, uint8_t outcome)
 void init_perceptron()
 {
 	ghistoryBits = 9;
-	mask = pow(2, ghistoryBits) - 1;
+	mask = power(2, ghistoryBits) - 1;
 	ghistoryReg = 0;
 	int i = 0;
 	N = 28;
@@ -200,8 +212,8 @@ void init_perceptron()
 	perceptron_table = (int **)malloc(N*sizeof(int*));
 	printf("The value of ghistoryBits = %d and the value of theta = %d\n", ghistoryBits, theta);	
 
-	choice_table = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
-	memset(choice_table, WN,pow(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken
+	choice_table = malloc(power(2, ghistoryBits)*sizeof(uint8_t));
+	memset(choice_table, WN,power(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken
 
 	for(i = 0; i < N; i++)
 	{
@@ -210,8 +222,8 @@ void init_perceptron()
 		perceptron_table[i][0] = 1;
 	}
 
-	PHT = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
-	memset(PHT, WN,pow(2,ghistoryBits)*sizeof(uint8_t));
+	PHT = malloc(power(2, ghistoryBits)*sizeof(uint8_t));
+	memset(PHT, WN,power(2,ghistoryBits)*sizeof(uint8_t));
 
 }
 
@@ -298,17 +310,17 @@ void init_bi_mode()
 {
 	ghistoryBits = 11;
 	pcIndexBits = 12;
-	mask = pow(2, ghistoryBits) - 1; 
-	mask_1 = pow(2, pcIndexBits) - 1;
+	mask = power(2, ghistoryBits) - 1; 
+	mask_1 = power(2, pcIndexBits) - 1;
 
-	choice_PHT = malloc(pow(2, pcIndexBits)*sizeof(uint8_t));
-	memset(choice_PHT, WN,pow(2,pcIndexBits)*sizeof(uint8_t));			// Initiating as weakly not taken
+	choice_PHT = malloc(power(2, pcIndexBits)*sizeof(uint8_t));
+	memset(choice_PHT, WT,power(2,pcIndexBits)*sizeof(uint8_t));			// Initiating as weakly not taken
 
-	direction_taken_PHT = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
-	memset(direction_taken_PHT, WN,pow(2,ghistoryBits)*sizeof(uint8_t));
+	direction_taken_PHT = malloc(power(2, ghistoryBits)*sizeof(uint8_t));
+	memset(direction_taken_PHT, ST,power(2,ghistoryBits)*sizeof(uint8_t));
 
-	direction_not_taken_PHT = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
-	memset(direction_not_taken_PHT, WN,pow(2,ghistoryBits)*sizeof(uint8_t));
+	direction_not_taken_PHT = malloc(power(2, ghistoryBits)*sizeof(uint8_t));
+	memset(direction_not_taken_PHT, SN,power(2,ghistoryBits)*sizeof(uint8_t));
 
 	ghistoryReg = 0;
 
@@ -329,10 +341,11 @@ uint8_t bi_mode(uint32_t pc)
 
 	else
 	{
-		if(direction_taken_PHT[direction_index] == SN || direction_taken_PHT[direction_index] == WN)
-			return NOTTAKEN;
-		else
-			return TAKEN;
+		//if(direction_taken_PHT[direction_index] == SN || direction_taken_PHT[direction_index] == WN)
+		//	return NOTTAKEN;
+		//else
+		//	return TAKEN;
+		return direction_taken_PHT[direction_index] >> 1;
 	}
 
 
@@ -422,30 +435,30 @@ void init_predictor()
 		case STATIC:
 			break;	
 		case GSHARE:
-			mask = pow(2, ghistoryBits) - 1;
+			mask = power(2, ghistoryBits) - 1;
 			printf("The value of mask = %d \n", mask);
-			PHT = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
-			memset(PHT, WN,pow(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
+			PHT = malloc(power(2, ghistoryBits)*sizeof(uint8_t));
+			memset(PHT, WN,power(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
 			ghistoryReg = 0;
 			break;
 		case TOURNAMENT:
-			mask = pow(2, ghistoryBits) - 1;	
-			mask_1 = pow(2, pcIndexBits) - 1;
-			mask_2 = pow(2, lhistoryBits) - 1;
+			mask = power(2, ghistoryBits) - 1;	
+			mask_1 = power(2, pcIndexBits) - 1;
+			mask_2 = power(2, lhistoryBits) - 1;
 			printf("The value of masks are 0 = %d, 1 = %d, 2 = %d\n", mask, mask_1, mask_2);
 			ghistoryReg = 0;
 
-			choice_table = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
-			memset(choice_table, WN,pow(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
+			choice_table = malloc(power(2, ghistoryBits)*sizeof(uint8_t));
+			memset(choice_table, WN,power(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
 
-			gpred_table = malloc(pow(2, ghistoryBits)*sizeof(uint8_t));
-			memset(gpred_table, WN,pow(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
+			gpred_table = malloc(power(2, ghistoryBits)*sizeof(uint8_t));
+			memset(gpred_table, WN,power(2,ghistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
 
-			lhistory_table = malloc(pow(2, pcIndexBits)*sizeof(uint32_t));
-			memset(lhistory_table, SN,pow(2,pcIndexBits)*sizeof(uint32_t));	// Initiating as weakly not taken 
+			lhistory_table = malloc(power(2, pcIndexBits)*sizeof(uint32_t));
+			memset(lhistory_table, SN,power(2,pcIndexBits)*sizeof(uint32_t));	// Initiating as weakly not taken 
 
-			lpred_table = malloc(pow(2, lhistoryBits)*sizeof(uint8_t));
-			memset(lpred_table, WN,pow(2,lhistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
+			lpred_table = malloc(power(2, lhistoryBits)*sizeof(uint8_t));
+			memset(lpred_table, WN,power(2,lhistoryBits)*sizeof(uint8_t));	// Initiating as weakly not taken 
 
 			break;
 		case CUSTOM:

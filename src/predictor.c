@@ -463,19 +463,6 @@ uint8_t modified_perceptron(uint32_t pc)
 		ppred = TAKEN;
 	else
 		ppred = NOTTAKEN;
-
-	for(int j = 1; j<=ghistoryBits; j++)
-	{
-		int k = ghistoryBits - j;
-		if(ppred == TAKEN)
-			temp_sum[k+1] = partial_sum[k+1] + mod_perceptron_table[index][j];
-		else
-			temp_sum[k+1] = partial_sum[k+1] - mod_perceptron_table[index][j];
-	}
-
-	partial_sum = temp_sum;
-	partial_sum[0] = 0;
-	spec_ghistoryReg = (spec_ghistoryReg << 1) + ppred;
 	return ppred;
 }
 
@@ -508,12 +495,13 @@ void update_modified_perceptron(uint32_t pc, uint8_t outcome)
 	{
 		int k = ghistoryBits - j;
 		if(outcome == TAKEN)
-			temp_sum[k+1] = partial_sum[k+1] + mod_perceptron_table[index][j];
+			temp_sum[k+1] = partial_sum[k+1] + mod_perceptron_table[i][j];
 		else
-			temp_sum[k+1] = partial_sum[k+1] - mod_perceptron_table[index][j];
+			temp_sum[k+1] = partial_sum[k+1] - mod_perceptron_table[i][j];
 	}
 
 	partial_sum = temp_sum;
+	partial_sum[0] = 0;
 	ghistoryReg = (ghistoryReg << 1) + outcome;
 	spec_ghistoryReg = ghistoryReg;
 
@@ -564,7 +552,8 @@ void init_predictor()
 			break;
 		case CUSTOM:
 			//init_perceptron();
-			init_bi_mode();
+			//init_bi_mode();
+			init_modified_perceptron();
 			break;
 		default:
 			break;
@@ -596,12 +585,13 @@ uint8_t make_prediction(uint32_t pc)
 			return tournament(pc);
 		case CUSTOM:
 			// Code to make the prediction from perceptron and gshare hybrid
-			//ppred = perceptron(pc);
+			ppred = modified_perceptron(pc);
+			return ppred;
 			//gpred = gshare(pc);
 			//return tournament_perceptron(pc);
 
 			// Code to make the prediction from the bi-mode predictor
-			return bi_mode(pc);
+			//return bi_mode(pc);
 		default:
 			break;
 	}
@@ -633,7 +623,8 @@ void train_predictor(uint32_t pc, uint8_t outcome)
 			// Functions defined to update perceptron based on the outcome 
 			//update_perceptron(pc, outcome);
 			//break;
-			update_bi_mode(pc,outcome);
+			//update_bi_mode(pc,outcome);
+			update_modified_perceptron(pc, outcome);
 			break;
 		default:
 			break;  

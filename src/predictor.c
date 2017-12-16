@@ -40,6 +40,7 @@ uint8_t ppred;		// The prediction that is returned in the perceptron
 
 uint8_t *PHT;		// Defining this way would be helping in shifting bits
 uint32_t ghistoryReg;	// The global pattern will be stored here
+uint32_t spec_ghistoryReg;	// Speculative history used is mod perceptron
 uint32_t mask;		// We will use this to select thre required number of bits
 uint32_t mask_1;	// We will use this to mask the pc value to index to local history table 
 uint32_t mask_2;	// We will use this to mask the history to the required number of bits
@@ -50,9 +51,12 @@ uint8_t *choice_table, *lpred_table, *gpred_table;		// Definition of all the pre
 uint32_t *lhistory_table;					// History table for local branches
 int N;			// Number of entries in the percepton table
 int **perceptron_table;	// Pointer to the percepton table
+int ** mod_perceptron_table;
 
 uint8_t *direction_taken_PHT, *direction_not_taken_PHT;
 uint8_t *choice_PHT;
+int *partial_sum, *temp_sum;
+int *table_index;
 
 
 
@@ -424,6 +428,100 @@ void update_bi_mode(uint32_t pc, uint8_t outcome)
 	ghistoryReg += outcome;
 	
 
+}
+
+
+void init_modified_perceptron()
+{
+	ghistoryBits = 13;
+	ghistoryReg = 0;
+	spec_ghistoryReg = 0;
+	N = 28;
+	theta = 1.93*ghistoryBits + 14;
+
+	mod_perceptron_table = (int **)malloc(N*sizeof(int *));
+
+	for(int i = 0; i < N; i++)
+	{
+		mod_perceptron_table[i] = (int *)malloc((ghistoryBits+1)*sizeof(int));
+		memset(mod_perceptron_table[i], 0, ghistoryBits*sizeof(int));
+		mod_perceptron_table[i][0] = 1;	
+	}
+
+	partial_sum = (int *)malloc((ghistoryBits+1)*sizeof(int));
+	temp_sum = (int *)malloc((ghistoryBits+1)*sizeof(int));
+
+	table_index = (int *)malloc(ghistoryBits*sizeof(int));
+}
+
+uint8_t modified_perceptron(uint32_t pc)
+{
+	int index = pc%N;
+	score = partial_sum[ghistoryBits] + mod_perceptron_table[index][0];
+
+	if(score >= 0)
+		ppred = TAKEN;
+	else
+		ppred = NOTTAKEN;
+
+	for(int j = 1; j<=ghistoryBits; j++)
+	{
+		int k = ghistoryBits - j;
+		if(ppred == TAKEN)
+			temp_sum[k+1] = partial_sum[k+1] + mod_perceptron_table[index][j];
+		else
+			temp_sum[k+1] = partial_sum[k+1] - mod_perceptron_table[index][j];
+	}
+
+	partial_sum = temp_sum;
+	partial_sum[0] = 0;
+	spec_ghistoryReg = (spec_ghistoryReg << 1) + ppred;
+	return ppred;
+}
+
+void update_modified_perceptron(uint32_t pc, uint8_t outcome)
+{
+	int i = pc%N;
+	uint32_t history = ghistoryReg;
+	int bit;
+	if(score < 0)
+		score = 0-score;
+	if(ppred != outcome || score <= theta)
+	{
+		if(outcome == TAKEN)
+			mod_perceptron_table[i][0]++;
+		else
+			mod_perceptron_table[i][0]--;
+		for(int j = 1; j <= ghistoryBits; j++)
+		{
+			bit = history%2;
+			int k = table_index[j-1];
+			if(outcome == bit)
+				mod_perceptron_table[k][j]++; 
+			else
+				mod_perceptron_table[k][j]--;
+			history = history >> 1;
+		}
+	}
+
+	for(int j = 1; j<=ghistoryBits; j++)
+	{
+		int k = ghistoryBits - j;
+		if(outcome == TAKEN)
+			temp_sum[k+1] = partial_sum[k+1] + mod_perceptron_table[index][j];
+		else
+			temp_sum[k+1] = partial_sum[k+1] - mod_perceptron_table[index][j];
+	}
+
+	partial_sum = temp_sum;
+	ghistoryReg = (ghistoryReg << 1) + outcome;
+	spec_ghistoryReg = ghistoryReg;
+
+	for(int i = 0; i < ghistoryBits-1; i++)
+	{
+		table_index[i] = table_index[i+1];
+	}
+	table_index[ghistoryBits - 1] = pc%N;
 }
 
 // Initialize the predictor

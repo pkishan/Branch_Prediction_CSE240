@@ -312,7 +312,7 @@ void update_perceptron(uint32_t pc, uint8_t outcome)
 
 void init_bi_mode()
 {
-	ghistoryBits = 12;
+	ghistoryBits = 11;
 	pcIndexBits = 12;
 	mask = power(2, ghistoryBits) - 1; 
 	mask_1 = power(2, pcIndexBits) - 1;
@@ -337,7 +337,7 @@ uint8_t bi_mode(uint32_t pc)
 
 	if(choice_PHT[choice_index] == SN || choice_PHT[choice_index] == WN)
 	{
-		if(direction_not_taken_PHT[direction_index] == 0 || direction_not_taken_PHT[direction_index] == 0)
+		if(direction_not_taken_PHT[direction_index] == SN || direction_not_taken_PHT[direction_index] == WN)
 			return NOTTAKEN;
 		else
 			return TAKEN;
@@ -345,7 +345,7 @@ uint8_t bi_mode(uint32_t pc)
 
 	else
 	{
-		if(direction_taken_PHT[direction_index] == 0 || direction_taken_PHT[direction_index] == 0)
+		if(direction_taken_PHT[direction_index] == SN || direction_taken_PHT[direction_index] == WN)
 			return NOTTAKEN;
 		else
 			return TAKEN;
@@ -367,7 +367,7 @@ void update_bi_mode(uint32_t pc, uint8_t outcome)
 	{
 		if(choice_PHT[choice_index] == SN || choice_PHT[choice_index] == WN)
 		{
-			if(direction_not_taken_PHT[direction_index] == WN || direction_not_taken_PHT[direction_index] == WN)
+			if(direction_not_taken_PHT[direction_index] == SN || direction_not_taken_PHT[direction_index] == WN)
 				choice_PHT[choice_index]++;
 		}
 
@@ -382,7 +382,7 @@ void update_bi_mode(uint32_t pc, uint8_t outcome)
 	{
 		if(choice_PHT[choice_index] == ST || choice_PHT[choice_index] == WT)
 		{
-			if(direction_taken_PHT[direction_index] == 1 || direction_taken_PHT[direction_index] == 1)
+			if(direction_taken_PHT[direction_index] == ST || direction_taken_PHT[direction_index] == WT)
 				choice_PHT[choice_index]--;
 		}
 
@@ -395,12 +395,12 @@ void update_bi_mode(uint32_t pc, uint8_t outcome)
 	{
 		if(outcome == TAKEN)
 		{
-			if(direction_not_taken_PHT[direction_index] != 1)
+			if(direction_not_taken_PHT[direction_index] != ST)
 				direction_not_taken_PHT[direction_index]++;
 		}
 		else
 		{
-			if(direction_not_taken_PHT[direction_index] != 0)
+			if(direction_not_taken_PHT[direction_index] != SN)
 				direction_not_taken_PHT[direction_index]--;
 		}
 
@@ -410,12 +410,12 @@ void update_bi_mode(uint32_t pc, uint8_t outcome)
 	{
 		if(outcome == TAKEN)
 		{
-			if(direction_taken_PHT[direction_index] != 1)
+			if(direction_taken_PHT[direction_index] != ST)
 				direction_taken_PHT[direction_index]++;
 		}
 		else
 		{
-			if(direction_taken_PHT[direction_index] != 0)
+			if(direction_taken_PHT[direction_index] != SN)
 				direction_taken_PHT[direction_index]--;
 		}
 	}

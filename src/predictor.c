@@ -12,7 +12,18 @@
 // TODO:Student Information
 const char *studentName = "Sai Kishan Pampana";
 const char *studentID   = "A53253039";
-const char *email       = "EMAIL";
+const char *email       = "spampana@ucsd.edu";
+//------------------------------------//
+//      Predictor Size                //
+//------------------------------------//
+
+/* We are using 12 bits to index into the choice PHT of bi-mode and since this is a 2 bit predictor, we are using 8Kbits
+ *
+ *For the case of direction PHT we are using 11 bits to index each one and since this is of 2 bits, each direction PHT 
+ *would be of size 4Kbits.
+ *
+ *So the total size used in the custome predictor = 16 Kbits + ( bits used for other variables and masks)
+ * */
 
 //------------------------------------//
 //      Predictor Configuration       //

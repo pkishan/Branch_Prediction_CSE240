@@ -268,11 +268,15 @@ void update_perceptron(uint32_t pc, uint8_t outcome)
 	int *weights = perceptron_table[index];
 	int bit;
 
-	if(score < 0)
+	if(score < 0)				// Taking the absolute value of the score
 		score = 0 - score;
 
 	if((ppred != outcome) || (score < theta))
 	{
+		if(outcome == TAKEN)
+			weights[0]++;
+		else
+			weights[0]--;
 		for(int i = 0; i < ghistoryBits; i++)
 		{
 			bit = history%2;
